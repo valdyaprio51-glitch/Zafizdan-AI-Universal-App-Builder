@@ -26,6 +26,21 @@ async function main() {
 
   await server.register(sensible);
 
+  // Allow empty or whitespace-only JSON bodies without throwing FST_ERR_CTP_EMPTY_JSON_BODY
+  server.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body: string | Buffer, done) => {
+    const str = typeof body === 'string' ? body : body.toString('utf8');
+    if (!str || str.trim() === '') {
+      done(null, {});
+      return;
+    }
+    try {
+      done(null, JSON.parse(str));
+    } catch (err: any) {
+      err.statusCode = 400;
+      done(err, undefined);
+    }
+  });
+
   // Health check
   server.get('/health', async () => {
     return { status: 'healthy', platform: 'Universal AI App Builder', timestamp: new Date().toISOString() };

@@ -109,8 +109,12 @@ export default function ProjectWorkspacePage() {
 
   const handleSaveFile = async (newContent: string) => {
     if (!selectedFile) return;
-    await api.saveFileContent(id, selectedFile, newContent);
-    setFileContent(newContent);
+    try {
+      await api.saveFileContent(id, selectedFile, newContent);
+      setFileContent(newContent);
+    } catch (e: any) {
+      console.error(e);
+    }
   };
 
   const handleStartApp = async () => {
@@ -118,6 +122,8 @@ export default function ProjectWorkspacePage() {
     try {
       const res = await api.runProject(id);
       setPreviewData({ isRunning: true, previewUrl: res.previewUrl, port: res.port });
+    } catch (e: any) {
+      console.error('Error starting application:', e);
     } finally {
       setActionLoading(false);
     }
@@ -128,6 +134,8 @@ export default function ProjectWorkspacePage() {
     try {
       await api.stopProject(id);
       setPreviewData({ isRunning: false });
+    } catch (e: any) {
+      console.error('Error stopping application:', e);
     } finally {
       setActionLoading(false);
     }
@@ -138,6 +146,8 @@ export default function ProjectWorkspacePage() {
     try {
       await api.buildProject(id);
       await loadProjectDetails();
+    } catch (e: any) {
+      console.error('Build execution error:', e);
     } finally {
       setActionLoading(false);
     }
@@ -148,6 +158,8 @@ export default function ProjectWorkspacePage() {
     try {
       await api.testProject(id);
       await loadProjectDetails();
+    } catch (e: any) {
+      console.error('Test execution error:', e);
     } finally {
       setActionLoading(false);
     }

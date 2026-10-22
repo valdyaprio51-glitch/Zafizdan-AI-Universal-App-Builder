@@ -8,3 +8,4 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":4000 "') do (
 )
 echo Ports cleared! You can now run start-dev.bat again.
 pause
+

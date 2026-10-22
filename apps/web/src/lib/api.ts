@@ -2,19 +2,24 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v
 
 export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
+  const headers: Record<string, string> = {
+    ...((options?.headers as Record<string, string>) || {}),
+  };
+
+  if (options?.body) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const res = await fetch(url, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
   });
 
   if (!res.ok) {
     let errMsg = `Request failed: ${res.status}`;
     try {
       const err = await res.json();
-      errMsg = err.error || errMsg;
+      errMsg = err.message || err.error || errMsg;
     } catch {
       // ignore
     }
