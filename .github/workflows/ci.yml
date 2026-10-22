@@ -1,0 +1,49 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Shared Package
+        run: npm run build --workspace=@zafizdan/shared
+
+      - name: Generate Prisma Client & Push DB
+        run: |
+          npx prisma generate --schema=apps/server/prisma/schema.prisma
+          DATABASE_URL="file:./dev.db" npx prisma db push --schema=apps/server/prisma/schema.prisma
+
+      - name: Build Server
+        run: npm run build --workspace=@zafizdan/server
+
+      - name: Run Server Platform Unit Tests
+        run: npm run test --workspace=@zafizdan/server
+
+      - name: Run End-to-End Vertical Slice Pipeline Test
+        run: npm run test:e2e --workspace=@zafizdan/server
+
+      - name: Build Frontend Web Platform
+        run: npm run build --workspace=@zafizdan/web

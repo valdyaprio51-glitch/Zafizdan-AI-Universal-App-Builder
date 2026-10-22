@@ -1,0 +1,18 @@
+FROM node:20-alpine AS build
+WORKDIR /app
+
+COPY package*.json ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY apps/server/package*.json ./apps/server/
+
+RUN npm install
+
+COPY packages/shared ./packages/shared
+RUN npm run build --workspace=@zafizdan/shared
+
+COPY apps/server ./apps/server
+RUN npx prisma generate --schema=apps/server/prisma/schema.prisma
+RUN npm run build --workspace=@zafizdan/server
+
+EXPOSE 4000
+CMD ["npm", "run", "start", "--workspace=@zafizdan/server"]

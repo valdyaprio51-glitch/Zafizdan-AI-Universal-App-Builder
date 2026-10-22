@@ -1,0 +1,28 @@
+{
+  "name": "zafizdan-ai-universal-app-builder",
+  "version": "1.0.0",
+  "description": "Universal AI App Builder - Enterprise AI-Powered Software Engineering Platform",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "server:dev": "npm run dev --workspace=@zafizdan/server",
+    "web:dev": "npm run dev --workspace=@zafizdan/web",
+    "db:generate": "npm run db:generate --workspace=@zafizdan/server",
+    "db:push": "npm run db:push --workspace=@zafizdan/server"
+  },
+  "keywords": [
+    "ai",
+    "app-builder",
+    "code-generation",
+    "devops",
+    "full-stack"
+  ],
+  "author": "Universal AI App Builder Team",
+  "license": "Apache-2.0"
+}

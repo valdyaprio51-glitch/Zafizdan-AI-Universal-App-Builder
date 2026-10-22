@@ -1,0 +1,316 @@
+// Prisma schema for Universal AI App Builder Platform
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String               @id @default(uuid())
+  email        String               @unique
+  name         String
+  passwordHash String
+  role         String               @default("developer") // admin, developer, viewer
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  memberships  OrganizationMember[]
+  projects     Project[]
+  auditLogs    AuditLog[]
+}
+
+model Organization {
+  id          String               @id @default(uuid())
+  name        String
+  slug        String               @unique
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  members     OrganizationMember[]
+  projects    Project[]
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  organizationId String
+  userId         String
+  role           String       @default("member") // owner, admin, member
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model Project {
+  id             String                @id @default(uuid())
+  name           String
+  slug           String
+  description    String?
+  prompt         String
+  status         String                @default("DRAFT")
+  workspacePath  String
+  userId         String
+  organizationId String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  user           User                  @relation(fields: [userId], references: [id])
+  organization   Organization?         @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  configuration  ProjectConfiguration?
+  files          ProjectFile[]
+  generationJobs GenerationJob[]
+  buildRuns      BuildRun[]
+  testRuns       TestRun[]
+  runtimes       RuntimeInstance[]
+  snapshots      ProjectSnapshot[]
+  gitRepos       GitRepository[]
+  deploymentJobs DeploymentJob[]
+  usageRecords   UsageRecord[]
+  auditLogs      AuditLog[]
+}
+
+model ProjectConfiguration {
+  id               String   @id @default(uuid())
+  projectId        String   @unique
+  appName          String
+  description      String?
+  appType          String   @default("full_stack")
+  frontend         String   @default("nextjs")
+  backend          String   @default("aspnet_core")
+  language         String   @default("typescript")
+  database         String   @default("sqlite")
+  orm              String?
+  auth             String   @default("jwt")
+  authorization    String   @default("rbac")
+  uiLibrary        String?  @default("tailwind")
+  apiStyle         String?  @default("rest")
+  testFramework    String?  @default("jest")
+  packageManager   String?  @default("npm")
+  runtimeVersion   String?
+  deploymentTarget String?  @default("docker")
+  dockerEnabled    Boolean  @default(true)
+  aiProviderId     String?
+  envVariables     String?  // JSON string
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ProjectFile {
+  id           String   @id @default(uuid())
+  projectId    String
+  path         String
+  size         Int      @default(0)
+  mimeType     String?
+  isExecutable Boolean  @default(false)
+  hash         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, path])
+}
+
+model AIProvider {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // google_gemini, openai, anthropic, ollama, mock
+  endpoint    String?
+  encryptedKey String? // AES-256-GCM encrypted
+  keyIv       String?
+  keyAuthTag  String?
+  model       String
+  temperature Float    @default(0.7)
+  tokenBudget Int      @default(4000)
+  timeoutMs   Int      @default(60000)
+  isDefault   Boolean  @default(false)
+  isValidated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  models      AIModel[]
+}
+
+model AIModel {
+  id           String     @id @default(uuid())
+  providerId   String
+  name         String
+  contextLimit Int        @default(8192)
+  capabilities String     // JSON string: ["planning", "code", "repair"]
+  provider     AIProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+}
+
+model GenerationJob {
+  id          String           @id @default(uuid())
+  projectId   String
+  status      String           @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, CANCELLED
+  currentStage String?
+  progress    Int              @default(0)
+  planSummary String?
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  steps       GenerationStep[]
+}
+
+model GenerationStep {
+  id          String        @id @default(uuid())
+  jobId       String
+  stage       String
+  name        String
+  status      String        @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED, SKIPPED
+  output      String?
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  durationMs  Int?
+  createdAt   DateTime      @default(now())
+  job         GenerationJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model BuildRun {
+  id          String    @id @default(uuid())
+  projectId   String
+  status      String    @default("PENDING") // PENDING, RUNNING, SUCCESS, FAILED
+  target      String    @default("all") // frontend, backend, all
+  command     String
+  output      String?
+  error       String?
+  exitCode    Int?
+  durationMs  Int?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model TestRun {
+  id          String    @id @default(uuid())
+  projectId   String
+  status      String    @default("PENDING")
+  totalTests  Int       @default(0)
+  passedCount Int       @default(0)
+  failedCount Int       @default(0)
+  output      String?
+  error       String?
+  exitCode    Int?
+  durationMs  Int?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model RuntimeInstance {
+  id           String       @id @default(uuid())
+  projectId    String
+  status       String       @default("STOPPED") // STARTING, RUNNING, STOPPED, FAILED
+  port         Int?
+  previewUrl   String?
+  pid          Int?
+  containerId  String?
+  startedAt    DateTime?
+  stoppedAt    DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  logs         RuntimeLog[]
+}
+
+model RuntimeLog {
+  id         String          @id @default(uuid())
+  instanceId String
+  level      String          @default("info")
+  source     String          @default("stdout")
+  message    String
+  timestamp  DateTime        @default(now())
+  instance   RuntimeInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+}
+
+model ProjectSnapshot {
+  id          String   @id @default(uuid())
+  projectId   String
+  name        String
+  description String?
+  stage       String?
+  manifest    String   // JSON string of files and hashes
+  createdAt   DateTime @default(now())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model GitRepository {
+  id          String   @id @default(uuid())
+  projectId   String   @unique
+  branch      String   @default("main")
+  lastCommit  String?
+  remoteUrl   String?
+  isClean     Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model DeploymentJob {
+  id          String    @id @default(uuid())
+  projectId   String
+  target      String    // docker, vercel, render, custom
+  status      String    @default("PENDING")
+  url         String?
+  logs        String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model UsageRecord {
+  id           String   @id @default(uuid())
+  projectId    String
+  providerType String
+  modelName    String
+  promptTokens Int      @default(0)
+  completionTokens Int  @default(0)
+  totalCost    Float    @default(0.0)
+  operation    String
+  createdAt    DateTime @default(now())
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  projectId  String?
+  action     String   // e.g., "PROJECT_CREATED", "GENERATION_STARTED", "RUN_APP", "DELETE_FILE"
+  resource   String
+  details    String?  // JSON string
+  ipAddress  String?
+  timestamp  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+}
+
+model FrameworkAdapter {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  category     String   // frontend, backend, database
+  version      String
+  capabilities String   // JSON string
+  isSupported  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model ProjectTemplate {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  appType     String
+  frontend    String
+  backend     String
+  database    String
+  tags        String   // comma-separated or JSON
+  popularity  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
