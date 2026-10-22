@@ -65,3 +65,4 @@ export class AspNetAdapter implements IBackendAdapter {
     return [];
   }
 }
+

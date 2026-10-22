@@ -74,3 +74,4 @@ export const generationRoutes: FastifyPluginAsync = async (fastify) => {
     });
   });
 };
+

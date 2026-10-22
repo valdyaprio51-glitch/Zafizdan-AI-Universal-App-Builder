@@ -55,3 +55,4 @@ export interface IAIProvider {
     patches: Array<{ filePath: string; patchContent: string; fullContent?: string }>;
   }>;
 }
+

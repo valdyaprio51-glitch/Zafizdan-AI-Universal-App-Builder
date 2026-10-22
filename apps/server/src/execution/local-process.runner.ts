@@ -15,18 +15,20 @@ export class LocalProcessRunner implements IExecutionRunner {
       let stderr = '';
       let timedOut = false;
 
-      // In Windows, npm / npx / dotnet might be cmd or ps1 scripts
+      // In Windows, npm / npx might be cmd scripts
       const isWindows = process.platform === 'win32';
-      const executable = isWindows && !sanitized.command.endsWith('.exe') && !sanitized.command.endsWith('.cmd')
-        ? `${sanitized.command}.cmd`
-        : sanitized.command;
+      let executable = sanitized.command;
+      if (isWindows) {
+        if (executable === 'npm') executable = 'npm.cmd';
+        else if (executable === 'npx') executable = 'npx.cmd';
+      }
 
       let child: ChildProcess;
       try {
         child = spawn(executable, sanitized.args, {
           cwd: options.cwd,
           env: { ...process.env, ...options.env },
-          shell: isWindows, // on Windows, shell helps resolve npm.cmd etc.
+          shell: false,
         });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -151,3 +153,4 @@ export class LocalProcessRunner implements IExecutionRunner {
 }
 
 export const localProcessRunner = new LocalProcessRunner();
+

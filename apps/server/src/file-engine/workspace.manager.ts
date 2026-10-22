@@ -48,27 +48,33 @@ export class WorkspaceManager {
     // Update database file tracking if project exists
     const cleanRelative = path.relative(workspaceRoot, safePath).replace(/\\/g, '/');
     try {
-      await prisma.projectFile.upsert({
-        where: {
-          projectId_path: {
+      const projectExists = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { id: true },
+      });
+      if (projectExists) {
+        await prisma.projectFile.upsert({
+          where: {
+            projectId_path: {
+              projectId,
+              path: cleanRelative,
+            },
+          },
+          create: {
             projectId,
             path: cleanRelative,
+            size,
+            hash,
+            isExecutable,
           },
-        },
-        create: {
-          projectId,
-          path: cleanRelative,
-          size,
-          hash,
-          isExecutable,
-        },
-        update: {
-          size,
-          hash,
-          isExecutable,
-          updatedAt: new Date(),
-        },
-      });
+          update: {
+            size,
+            hash,
+            isExecutable,
+            updatedAt: new Date(),
+          },
+        });
+      }
     } catch {
       // Gracefully continue if project record is not in DB (e.g. standalone/test workspace)
     }

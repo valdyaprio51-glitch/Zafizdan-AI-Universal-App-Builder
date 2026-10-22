@@ -32,3 +32,4 @@
 
 ## 2. Health Check Diagnostic
 Navigate to `http://localhost:3000/health` or `GET http://localhost:4000/health` to verify service responsiveness and runtime compiler availability.
+

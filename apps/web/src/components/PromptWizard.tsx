@@ -261,3 +261,4 @@ export function PromptWizard({ onSubmit, isLoading }: PromptWizardProps) {
     </form>
   );
 }
+

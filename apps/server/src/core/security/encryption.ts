@@ -49,3 +49,4 @@ export class SecurityEncryption {
 }
 
 export const securityEncryption = new SecurityEncryption();
+

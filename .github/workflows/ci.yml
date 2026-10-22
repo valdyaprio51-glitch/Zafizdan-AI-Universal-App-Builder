@@ -47,3 +47,4 @@ jobs:
 
       - name: Build Frontend Web Platform
         run: npm run build --workspace=@zafizdan/web
+

@@ -28,6 +28,14 @@ export function useProjectEvents(projectId: string) {
 
     const eventSource = new EventSource(api.getEventsUrl(projectId));
 
+    const safeParse = (dataStr: string) => {
+      try {
+        return JSON.parse(dataStr);
+      } catch {
+        return null;
+      }
+    };
+
     const appendLog = (message: string, type = 'info') => {
       setProgress((prev) => ({
         ...prev,
@@ -43,13 +51,15 @@ export function useProjectEvents(projectId: string) {
     };
 
     eventSource.addEventListener('planning.started', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       setProgress((prev) => ({ ...prev, status: 'PLANNING', percentage: 5 }));
       appendLog(data.payload?.message || 'Analyzing architecture specifications...', 'info');
     });
 
     eventSource.addEventListener('planning.completed', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       setProgress((prev) => ({
         ...prev,
         planSummary: data.payload?.plan?.summary,
@@ -59,7 +69,8 @@ export function useProjectEvents(projectId: string) {
     });
 
     eventSource.addEventListener('stage.started', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       setProgress((prev) => ({
         ...prev,
         currentStage: data.payload?.stage,
@@ -71,7 +82,8 @@ export function useProjectEvents(projectId: string) {
     });
 
     eventSource.addEventListener('stage.completed', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       setProgress((prev) => ({
         ...prev,
         percentage: data.payload?.percentage || prev.percentage,
@@ -80,12 +92,14 @@ export function useProjectEvents(projectId: string) {
     });
 
     eventSource.addEventListener('file.created', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       appendLog(`Created file: ${data.payload?.path} (${data.payload?.size} bytes)`, 'file');
     });
 
     eventSource.addEventListener('runtime.started', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       setProgress((prev) => ({
         ...prev,
         status: 'RUNNING',
@@ -95,7 +109,8 @@ export function useProjectEvents(projectId: string) {
     });
 
     eventSource.addEventListener('test.completed', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       appendLog(
         `Automated test run: ${data.payload?.passed ? 'PASSED' : 'FAILED'} - ${data.payload?.output}`,
         data.payload?.passed ? 'success' : 'warn'
@@ -103,7 +118,8 @@ export function useProjectEvents(projectId: string) {
     });
 
     eventSource.addEventListener('progress.updated', (e) => {
-      const data = JSON.parse(e.data);
+      const data = safeParse(e.data);
+      if (!data) return;
       setProgress((prev) => ({
         ...prev,
         percentage: data.payload?.percentage ?? prev.percentage,
@@ -125,3 +141,4 @@ export function useProjectEvents(projectId: string) {
 
   return progress;
 }
+

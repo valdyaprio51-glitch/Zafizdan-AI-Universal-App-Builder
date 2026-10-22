@@ -71,3 +71,4 @@ export class NextJsAdapter implements IFrameworkAdapter {
     ];
   }
 }
+

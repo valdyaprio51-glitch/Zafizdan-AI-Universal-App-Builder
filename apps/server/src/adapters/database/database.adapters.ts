@@ -62,3 +62,4 @@ export class SqlServerDatabaseAdapter implements IDatabaseAdapter {
     return 'sqlcmd -S localhost -U sa -P YourStrong(!)Password -i database/schema.sql';
   }
 }
+

@@ -102,3 +102,4 @@ Registers a new AI provider (AES-256-GCM encrypted API key).
 
 ### `GET /stats`
 Retrieves platform metrics for the developer dashboard.
+

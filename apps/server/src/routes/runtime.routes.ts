@@ -2,6 +2,7 @@ import { FastifyPluginAsync } from 'fastify';
 import { prisma } from '../prisma';
 import { localProcessRunner } from '../execution/local-process.runner';
 import { PortAllocator } from '../execution/port-allocator';
+import { previewServerManager } from '../execution/preview-server';
 import { workspaceManager } from '../file-engine/workspace.manager';
 
 export const runtimeRoutes: FastifyPluginAsync = async (fastify) => {
@@ -88,8 +89,11 @@ export const runtimeRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /api/v1/projects/:id/run
   fastify.post('/:id/run', async (request, reply) => {
     const { id } = request.params as { id: string };
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return reply.status(404).send({ error: 'Project not found' });
+
     const port = await PortAllocator.allocate();
-    const previewUrl = `http://localhost:${port}`;
+    const previewUrl = await previewServerManager.startPreview(id, port, project.name);
 
     const runtime = await prisma.runtimeInstance.create({
       data: {
@@ -114,6 +118,8 @@ export const runtimeRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /api/v1/projects/:id/stop
   fastify.post('/:id/stop', async (request, reply) => {
     const { id } = request.params as { id: string };
+    await previewServerManager.stopPreview(id);
+
     const runtime = await prisma.runtimeInstance.findFirst({
       where: { projectId: id, status: 'RUNNING' },
       orderBy: { createdAt: 'desc' },
@@ -151,3 +157,4 @@ export const runtimeRoutes: FastifyPluginAsync = async (fastify) => {
     };
   });
 };
+

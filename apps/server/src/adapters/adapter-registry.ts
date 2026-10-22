@@ -94,3 +94,4 @@ export class AdapterRegistry {
 }
 
 export const adapterRegistry = AdapterRegistry.getInstance();
+

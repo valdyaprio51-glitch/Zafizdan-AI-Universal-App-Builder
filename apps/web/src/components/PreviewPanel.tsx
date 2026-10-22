@@ -125,3 +125,4 @@ export function PreviewPanel({ previewUrl, isRunning, onStart, onStop }: Preview
     </div>
   );
 }
+

@@ -140,3 +140,4 @@ export const projectsRoutes: FastifyPluginAsync = async (fastify) => {
     }
   });
 };
+

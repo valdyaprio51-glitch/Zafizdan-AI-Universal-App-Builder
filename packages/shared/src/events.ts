@@ -73,3 +73,4 @@ export interface PipelineEvent {
   timestamp: string;
   payload: Record<string, unknown>;
 }
+

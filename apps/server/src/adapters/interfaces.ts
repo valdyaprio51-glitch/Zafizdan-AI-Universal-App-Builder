@@ -41,3 +41,4 @@ export interface IDatabaseAdapter {
   generateSchema(tables: string[]): Promise<Array<{ path: string; content: string }>>;
   generateMigrationScript(): string;
 }
+

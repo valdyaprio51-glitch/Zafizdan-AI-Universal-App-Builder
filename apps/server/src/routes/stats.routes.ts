@@ -42,3 +42,4 @@ export const statsRoutes: FastifyPluginAsync = async (fastify) => {
     };
   });
 };
+

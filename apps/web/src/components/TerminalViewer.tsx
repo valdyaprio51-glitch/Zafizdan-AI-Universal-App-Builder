@@ -81,3 +81,4 @@ export function TerminalViewer({ logs }: TerminalViewerProps) {
     </div>
   );
 }
+

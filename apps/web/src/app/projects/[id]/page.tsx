@@ -38,7 +38,8 @@ const STAGES = [
 ];
 
 export default function ProjectWorkspacePage() {
-  const { id } = useParams() as { id: string };
+  const params = useParams();
+  const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
   const [project, setProject] = useState<any>(null);
   const [fileTree, setFileTree] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -359,3 +360,4 @@ export default function ProjectWorkspacePage() {
     </div>
   );
 }
+

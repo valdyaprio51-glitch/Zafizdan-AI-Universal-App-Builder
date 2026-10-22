@@ -314,3 +314,4 @@ model ProjectTemplate {
   popularity  Int      @default(0)
   createdAt   DateTime @default(now())
 }
+

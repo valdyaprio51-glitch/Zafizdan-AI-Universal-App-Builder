@@ -32,3 +32,4 @@ Universal AI App Builder handles arbitrary code generation and isolated code exe
   - Dedicated dynamic port allocation within range 5100-5999 via TCP socket verification.
   - Process tree kill (`taskkill /t /f /pid` on Windows, `SIGTERM` on Linux) ensures all spawned child processes terminate cleanly when stopping a project.
   - Resource timeouts (default 120s) kill long-running or stalled compilation jobs.
+

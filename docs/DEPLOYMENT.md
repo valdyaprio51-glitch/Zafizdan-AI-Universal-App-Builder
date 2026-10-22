@@ -60,3 +60,4 @@ docker-compose logs -f
 | `DEFAULT_AI_PROVIDER` | `mock` | Default engine: `mock`, `google_gemini`, `openai` |
 | `GEMINI_API_KEY` | - | Optional Google Gemini API key |
 | `OPENAI_API_KEY` | - | Optional OpenAI API key |
+

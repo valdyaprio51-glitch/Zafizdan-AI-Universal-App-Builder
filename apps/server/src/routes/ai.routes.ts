@@ -72,3 +72,4 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
     return result;
   });
 };
+

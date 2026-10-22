@@ -83,3 +83,4 @@ export const filesRoutes: FastifyPluginAsync = async (fastify) => {
     }
   });
 };
+

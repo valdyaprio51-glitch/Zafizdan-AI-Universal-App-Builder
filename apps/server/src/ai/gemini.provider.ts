@@ -187,3 +187,4 @@ ${relatedFiles.map((f) => `--- ${f.path} ---\n${f.content}\n`).join('\n')}`;
     return JSON.parse(rawText);
   }
 }
+

@@ -16,3 +16,4 @@ RUN npm run build --workspace=@zafizdan/server
 
 EXPOSE 4000
 CMD ["npm", "run", "start", "--workspace=@zafizdan/server"]
+

@@ -41,3 +41,4 @@ echo -e "\nTo start the platform:"
 echo "  Terminal 1 (Backend): npm run server:dev"
 echo "  Terminal 2 (Frontend): npm run web:dev"
 echo "  Browser URL:          http://localhost:3000\n"
+

@@ -54,3 +54,4 @@ Write-Host "`nTo start the platform:" -ForegroundColor Cyan
 Write-Host "  Terminal 1 (Backend): npm run server:dev" -ForegroundColor White
 Write-Host "  Terminal 2 (Frontend): npm run web:dev" -ForegroundColor White
 Write-Host "  Browser URL:          http://localhost:3000`n" -ForegroundColor White
+

@@ -50,3 +50,4 @@ graph TD
 - **Command Allowlisting:** Executables are strictly validated against an approved allowlist (`npm`, `node`, `dotnet`, `python`, `git`, `docker`). Shell operators like `;`, `&`, `|`, and dangerous commands are blocked.
 - **Secret Encryption:** API keys and credentials are encrypted using AES-256-GCM with authenticated tags and random IVs.
 - **Dynamic Port Allocation:** Ports are dynamically verified and bound within 5100-5999 to prevent port collision between multiple running projects.
+

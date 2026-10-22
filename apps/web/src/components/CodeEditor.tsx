@@ -95,3 +95,4 @@ export function CodeEditor({ filePath, initialContent, onSave }: CodeEditorProps
     </div>
   );
 }
+

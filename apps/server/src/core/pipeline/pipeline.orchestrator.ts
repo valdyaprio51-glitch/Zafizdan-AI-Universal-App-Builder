@@ -11,6 +11,7 @@ import { aiProviderManager, AIProviderManager } from '../../ai/ai-provider-manag
 import { localProcessRunner } from '../../execution/local-process.runner';
 import { QAEngine } from '../qa/qa-engine';
 import { PortAllocator } from '../../execution/port-allocator';
+import { previewServerManager } from '../../execution/preview-server';
 
 const STAGE_ORDER = [
   PipelineStage.STAGE_1_REQUIREMENT_ANALYSIS,
@@ -177,7 +178,7 @@ export class PipelineOrchestrator {
           });
 
           const allocatedPort = await PortAllocator.allocate();
-          const previewUrl = `http://localhost:${allocatedPort}`;
+          const previewUrl = await previewServerManager.startPreview(projectId, allocatedPort, appName);
 
           const runtime = await prisma.runtimeInstance.create({
             data: {
@@ -307,3 +308,4 @@ export class PipelineOrchestrator {
 }
 
 export const pipelineOrchestrator = new PipelineOrchestrator();
+
