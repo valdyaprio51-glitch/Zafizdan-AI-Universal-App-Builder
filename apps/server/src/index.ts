@@ -41,6 +41,10 @@ async function main() {
     }
   });
 
+  server.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string' }, (_req, _body, done) => {
+    done(null, {});
+  });
+
   // Health check
   server.get('/health', async () => {
     return { status: 'healthy', platform: 'Universal AI App Builder', timestamp: new Date().toISOString() };

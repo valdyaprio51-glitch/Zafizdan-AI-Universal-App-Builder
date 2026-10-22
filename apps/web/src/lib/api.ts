@@ -37,7 +37,7 @@ export const api = {
     fetchApi<any>('/projects', { method: 'POST', body: JSON.stringify(data) }),
   deleteProject: (id: string) => fetchApi<any>(`/projects/${id}`, { method: 'DELETE' }),
   generateProject: (id: string) =>
-    fetchApi<any>(`/projects/${id}/generate`, { method: 'POST' }),
+    fetchApi<any>(`/projects/${id}/generate`, { method: 'POST', body: JSON.stringify({}) }),
   getGenerationStatus: (id: string) => fetchApi<any>(`/projects/${id}/generation-status`),
 
   getFileTree: (id: string) => fetchApi<any[]>(`/projects/${id}/files`),
@@ -51,12 +51,12 @@ export const api = {
       body: JSON.stringify({ path, content }),
     }),
 
-  buildProject: (id: string) => fetchApi<any>(`/projects/${id}/build`, { method: 'POST' }),
+  buildProject: (id: string) => fetchApi<any>(`/projects/${id}/build`, { method: 'POST', body: JSON.stringify({}) }),
   getBuilds: (id: string) => fetchApi<any[]>(`/projects/${id}/builds`),
-  testProject: (id: string) => fetchApi<any>(`/projects/${id}/tests`, { method: 'POST' }),
+  testProject: (id: string) => fetchApi<any>(`/projects/${id}/tests`, { method: 'POST', body: JSON.stringify({}) }),
 
-  runProject: (id: string) => fetchApi<any>(`/projects/${id}/run`, { method: 'POST' }),
-  stopProject: (id: string) => fetchApi<any>(`/projects/${id}/stop`, { method: 'POST' }),
+  runProject: (id: string) => fetchApi<any>(`/projects/${id}/run`, { method: 'POST', body: JSON.stringify({}) }),
+  stopProject: (id: string) => fetchApi<any>(`/projects/${id}/stop`, { method: 'POST', body: JSON.stringify({}) }),
   getPreview: (id: string) => fetchApi<any>(`/projects/${id}/preview`),
 
   getAIProviders: () => fetchApi<any[]>('/ai/providers'),

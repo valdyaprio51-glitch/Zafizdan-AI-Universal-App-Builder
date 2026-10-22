@@ -149,10 +149,24 @@ export const runtimeRoutes: FastifyPluginAsync = async (fastify) => {
       return { isRunning: false, message: 'Application is currently not running' };
     }
 
+    let port = runtime.port;
+    let previewUrl = runtime.previewUrl;
+
+    // Auto-heal: Ensure in-memory preview server is running if process restarted
+    if (!previewServerManager.isProjectRunning(id)) {
+      const project = await prisma.project.findUnique({ where: { id } });
+      port = port || (await PortAllocator.allocate());
+      try {
+        previewUrl = await previewServerManager.startPreview(id, port, project?.name || 'Generated Application');
+      } catch (err) {
+        fastify.log.warn(`Failed to auto-restart preview server on port ${port}: ${err}`);
+      }
+    }
+
     return {
       isRunning: true,
-      port: runtime.port,
-      previewUrl: runtime.previewUrl,
+      port,
+      previewUrl,
       uptimeSeconds: runtime.startedAt ? Math.round((Date.now() - runtime.startedAt.getTime()) / 1000) : 0,
     };
   });
