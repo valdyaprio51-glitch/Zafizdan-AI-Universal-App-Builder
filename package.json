@@ -13,6 +13,7 @@
     "dev": "npm run dev --workspaces --if-present",
     "server:dev": "npm run dev --workspace=@zafizdan/server",
     "web:dev": "npm run dev --workspace=@zafizdan/web",
+    "kill:ports": "powershell -Command \"Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000,4000 -ErrorAction SilentlyContinue).OwningProcess -Force -ErrorAction SilentlyContinue\"",
     "db:generate": "npm run db:generate --workspace=@zafizdan/server",
     "db:push": "npm run db:push --workspace=@zafizdan/server"
   },
